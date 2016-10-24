@@ -90,17 +90,17 @@ def reportMatch(winner, loser):
     cursor = pg.cursor()
     # Leaving out id so that the SQL database schema will handle it
     cursor.execute("INSERT INTO match (winner, loser)\
-        VALUES (%s, %s);", (winner,loser))
+        VALUES (%s, %s);", (winner, loser))
     # Update player wins and matches columns for winner based on match insert
     cursor.execute("UPDATE player SET wins = w.num, matches = m.num\
         FROM (SELECT count(id) AS num FROM match WHERE winner = %s) As w,\
         (SELECT count(id) AS num FROM match WHERE winner = %s OR loser = %s)\
-        As m WHERE player.id = %s;", (winner,winner,winner,winner))
+        As m WHERE player.id = %s;", (winner, winner, winner, winner))
     # Update player wins and matches columns for loser based on match insert
     cursor.execute("UPDATE player SET wins = w.num, matches = m.num\
         FROM (SELECT count(id) AS num FROM match WHERE winner = %s) As w,\
         (SELECT count(id) AS num FROM match WHERE winner = %s OR loser = %s)\
-        As m WHERE player.id = %s;", (loser,loser,loser,loser))
+        As m WHERE player.id = %s;", (loser, loser, loser, loser))
     pg.commit()
     pg.close()
 
@@ -123,19 +123,19 @@ def swissPairings():
     pairings = []
     standings = playerStandings()
 
-    i = 1;
+    i = 1
     # loop through the standings
     for player in standings:
         if i % 2 == 0:
             id2 = player[0]
             name2 = player[1]
 
-            # every, other passthrough we'll have a tuple that can be appended
+            # every, other loop we'll have a tuple that can be appended
             pairings.append((id1, name1, id2, name2))
         else:
             id1 = player[0]
             name1 = player[1]
 
         i = i + 1
-        
+
     return pairings
