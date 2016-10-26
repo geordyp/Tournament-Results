@@ -18,13 +18,9 @@ CREATE DATABASE tournament;
 
 -- player
 -- id: primary key
--- name: the name of the player
--- wins: the number of wins they have
 -- matches: the number of matches they've played
 CREATE TABLE player (id SERIAL,
                      name TEXT NOT NULL,
-                     wins INTEGER NOT NULL,
-                     matches INTEGER NOT NULL,
                      PRIMARY KEY(id));
 
 -- match
@@ -35,3 +31,9 @@ CREATE TABLE match (id SERIAL,
                     winner INTEGER REFERENCES player(id) NOT NULL,
                     loser INTEGER REFERENCES player(id) NOT NULL,
                     PRIMARY KEY(id));
+
+CREATE VIEW wins AS SELECT player.id, player.name, count(match.winner) AS wins FROM player LEFT JOIN match ON player.id = match.winner GROUP BY player.id ORDER BY wins DESC;
+CREATE VIEW losses AS SELECT player.id, player.name, count(match.loser) AS losses FROM player LEFT JOIN match ON player.id = match.loser GROUP BY player.id ORDER BY losses DESC;
+CREATE VIEW standings AS SELECT wins.id, wins.name, wins.wins, sum(wins.wins) + sum(losses.losses) AS matches FROM wins LEFT JOIN losses ON wins.id = losses.id GROUP BY wins.id, wins.name, wins.wins ORDER BY wins DESC;
+
+CREATE VIEW count_players AS SELECT count(id) FROM player;

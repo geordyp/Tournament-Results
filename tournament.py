@@ -6,25 +6,26 @@
 import psycopg2
 
 
-def connect():
+def connect(database_name="tournament"):
     """Connect to the PostgreSQL database.  Returns a database connection."""
-    return psycopg2.connect("dbname=tournament")
-
+    try:
+        pg = psycopg2.connect("dbname={}".format(database_name))
+        cursor = pg.cursor()
+        return pg, cursor
+    except:
+        print("Failed to connect to the database.")
 
 def deleteMatches():
     """Remove all the match records from the database."""
-    pg = connect()
-    cursor = pg.cursor()
+    pg, cursor = connect()
     cursor.execute("DELETE FROM match;")
-    cursor.execute("UPDATE player SET wins = 0, matches = 0;")
     pg.commit()
     pg.close()
 
 
 def deletePlayers():
     """Remove all the player records from the database."""
-    pg = connect()
-    cursor = pg.cursor()
+    pg, cursor = connect()
     cursor.execute("DELETE FROM player;")
     pg.commit()
     pg.close()
@@ -32,9 +33,8 @@ def deletePlayers():
 
 def countPlayers():
     """Returns the number of players currently registered."""
-    pg = connect()
-    cursor = pg.cursor()
-    cursor.execute("SELECT count(id) FROM player;")
+    pg, cursor = connect()
+    cursor.execute("SELECT * FROM count_players;")
     result = cursor.fetchone()
     pg.close()
     return result[0]
@@ -49,11 +49,8 @@ def registerPlayer(name):
     Args:
       name: the player's full name (need not be unique).
     """
-    pg = connect()
-    cursor = pg.cursor()
-    # Leaving out id so that the SQL database schema will handle it
-    cursor.execute("INSERT INTO player (name, wins, matches)\
-        VALUES (%s, 0, 0);", (name,))
+    pg, cursor = connect()
+    cursor.execute("INSERT INTO player (name) VALUES (%s);", (name,))
     pg.commit()
     pg.close()
 
@@ -71,9 +68,8 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
-    pg = connect()
-    cursor = pg.cursor()
-    cursor.execute("SELECT * FROM player ORDER BY wins DESC;")
+    pg, cursor = connect()
+    cursor.execute("SELECT * FROM standings;")
     results = cursor.fetchall()
     pg.close()
     return results
@@ -86,21 +82,9 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
-    pg = connect()
-    cursor = pg.cursor()
-    # Leaving out id so that the SQL database schema will handle it
+    pg, cursor = connect()
     cursor.execute("INSERT INTO match (winner, loser)\
         VALUES (%s, %s);", (winner, loser))
-    # Update player wins and matches columns for winner based on match insert
-    cursor.execute("UPDATE player SET wins = w.num, matches = m.num\
-        FROM (SELECT count(id) AS num FROM match WHERE winner = %s) As w,\
-        (SELECT count(id) AS num FROM match WHERE winner = %s OR loser = %s)\
-        As m WHERE player.id = %s;", (winner, winner, winner, winner))
-    # Update player wins and matches columns for loser based on match insert
-    cursor.execute("UPDATE player SET wins = w.num, matches = m.num\
-        FROM (SELECT count(id) AS num FROM match WHERE winner = %s) As w,\
-        (SELECT count(id) AS num FROM match WHERE winner = %s OR loser = %s)\
-        As m WHERE player.id = %s;", (loser, loser, loser, loser))
     pg.commit()
     pg.close()
 
