@@ -14,3 +14,5 @@ Developed the database schema for a Swiss tournament and wrote python code to in
 * tournament.py - Geordy Williams
 * tournament.sql - Geordy Williams
 * tournament_test.py - Udacity
+* pg_config.sh - Udacity
+* Vagrantfile - Udacity
