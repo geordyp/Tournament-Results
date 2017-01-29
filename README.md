@@ -9,11 +9,8 @@ Developed the database schema for a Swiss tournament and wrote python code to in
 2. Enter the command `vagrant up`. This command can take awhile to run. Ignore the error `default: stdin: is not a tty`.
 3. Enter the command 'vagrant ssh'.
 4. Once vagrant is up and running cd into '/vagrant'.
-5. Enter the command `python tournament_test.py` to run the tests.
-
-#### Note
-* tournament.sql in the tournament directory creates the database schema and views. To build and access the database first run `psql` then `\i tournament.sql`. To exit psql use `\q`.
-
+5. To build the database first run `psql` then `\i tournament.sql`. To exit psql use `\q`.
+6. Enter the command `python tournament_test.py` to run the tests.
 
 ## Authors
 * tournament.py - Geordy Williams
